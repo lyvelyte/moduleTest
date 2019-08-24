@@ -1,4 +1,9 @@
-# READ THIS DOCUMENT
+%==================================================
+Intellectual property of Brendan J. Alvey 
+All rights reserved. Distribution is prohibited.
+moduleTest
+%==================================================
+
 This code came from https://github.com/lyvelyte/moduleTest
 
 To Setup:
