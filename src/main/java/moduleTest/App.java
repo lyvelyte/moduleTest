@@ -10,5 +10,15 @@ public class App {
 
     public static void main(String[] args) {
         System.out.println(new App().getGreeting());
+        MP3_System mp3AudioSys = new MP3_System();
+        mp3AudioSys.init();
+        while(mp3AudioSys.isRunning){
+            try{
+                Thread.sleep(200);
+            }catch(Exception e){
+                System.err.println("Error, failed to sleep!");
+            }
+        }
+        mp3AudioSys.cleanUp();
     }
 }
