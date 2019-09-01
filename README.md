@@ -18,4 +18,4 @@ To Run deployed file:
 3) From command prompt, run bin/moduleTest.bat     
 
 
-Intellectual property of Brendan J. Alvey All rights reserved. Distribution is prohibited.       
+Authorized use only. Intellectual property of Brendan J. Alvey. All rights reserved. Distribution is prohibited. Nanos gigantum humeris insidentes.     
