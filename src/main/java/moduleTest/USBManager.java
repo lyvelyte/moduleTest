@@ -4,13 +4,21 @@ import org.usb4java.*;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class USBManager {
-
-    List<UsbDeviceDescriptor> usbDeviceDescriptorList = new ArrayList<>();
+    /**
+     * The USB communication timeout.
+     */
+    private static final int TIMEOUT = 1000;
+    public boolean isConnected = false;
+    int result;
+    DeviceHandle handle;
+    int attached;
+    List<UsbDeviceInfo> usbDeviceInfoList = new ArrayList<>();
 
     public USBManager() throws Exception {
         loadUsbDatabase();
@@ -22,6 +30,19 @@ public class USBManager {
         }
         int decimal = Integer.parseInt(hexNumber, 16);
         return (short) decimal;
+    }
+
+    public static void sendMessage(DeviceHandle handle, byte[] data) {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
+        buffer.put(data);
+        buffer.rewind();
+        int transfered = LibUsb.controlTransfer(handle,
+                (byte) (LibUsb.REQUEST_TYPE_CLASS | LibUsb.RECIPIENT_INTERFACE),
+                (byte) 0x09, (short) 2, (short) 1, buffer, TIMEOUT);
+        if (transfered < 0)
+            throw new LibUsbException("Control transfer failed", transfered);
+        if (transfered != data.length)
+            throw new RuntimeException("Not all data was sent to device");
     }
 
     private static String loadResource(String fileName) throws Exception {
@@ -47,7 +68,78 @@ public class USBManager {
         return result;
     }
 
-    public void listDevices() {
+    public void connect(short vendorId, short productId) {
+        // Initialize the libusb context
+        result = LibUsb.init(null);
+        if (result != LibUsb.SUCCESS) {
+            throw new LibUsbException("Unable to initialize libusb", result);
+        }
+
+        // Search for the missile launcher USB device and stop when not found
+        Device device = findDevice(vendorId, productId);
+        if (device == null) {
+            System.err.println("Missile launcher not found.");
+            System.exit(1);
+        }
+
+        // Open the device
+        DeviceHandle handle = new DeviceHandle();
+        result = LibUsb.open(device, handle);
+        if (result != LibUsb.SUCCESS) {
+            throw new LibUsbException("Unable to open USB device", result);
+        }
+        try {
+            // Check if kernel driver is attached to the interface
+            attached = LibUsb.kernelDriverActive(handle, 1);
+            if (attached < 0) {
+                throw new LibUsbException(
+                        "Unable to check kernel driver active", result);
+            }
+
+            // Detach kernel driver from interface 0 and 1. This can fail if
+            // kernel is not attached to the device or operating system
+            // doesn't support this operation. These cases are ignored here.
+            result = LibUsb.detachKernelDriver(handle, 1);
+            if (result != LibUsb.SUCCESS &&
+                    result != LibUsb.ERROR_NOT_SUPPORTED &&
+                    result != LibUsb.ERROR_NOT_FOUND) {
+                throw new LibUsbException("Unable to detach kernel driver",
+                        result);
+            }
+
+            // Claim interface
+            result = LibUsb.claimInterface(handle, 1);
+            if (result != LibUsb.SUCCESS) {
+                throw new LibUsbException("Unable to claim interface", result);
+            }
+
+            isConnected = true;
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    public void disconnect() {
+        // Release the interface
+        result = LibUsb.releaseInterface(handle, 1);
+        if (result != LibUsb.SUCCESS) {
+            throw new LibUsbException("Unable to release interface",
+                    result);
+        }
+
+        // Re-attach kernel driver if needed
+        if (attached == 1) {
+            LibUsb.attachKernelDriver(handle, 1);
+            if (result != LibUsb.SUCCESS) {
+                throw new LibUsbException(
+                        "Unable to re-attach kernel driver", result);
+            }
+        }
+
+        isConnected = false;
+    }
+
+    public List<UsbDeviceInfo> listDevices() {
         // Create the libusb context
         Context context = new Context();
 
@@ -64,6 +156,10 @@ public class USBManager {
             throw new LibUsbException("Unable to get device list", result);
         }
 
+        List<UsbDeviceInfo> attachedDevicesInfo = new ArrayList<>();
+
+        System.out.println();
+
         try {
             // Iterate over all devices and list them
             for (Device device : list) {
@@ -72,16 +168,13 @@ public class USBManager {
                 DeviceDescriptor descriptor = new DeviceDescriptor();
                 result = LibUsb.getDeviceDescriptor(device, descriptor);
                 if (result < 0) {
-                    throw new LibUsbException(
-                            "Unable to read device descriptor", result);
+                    throw new LibUsbException("Unable to read device descriptor", result);
                 }
-                System.out.format(
-                        "\nBus %03d, Device %03d: Vendor %04x, Product %04x%n",
-                        busNumber, address, descriptor.idVendor(),
-                        descriptor.idProduct());
-                UsbDeviceDescriptor usbDeviceDescriptor = findUSBDevice(descriptor.idVendor(), descriptor.idProduct());
-                if (usbDeviceDescriptor != null) {
-                    System.out.println("Vendor = " + usbDeviceDescriptor.vendorDescription + ", Product = " + usbDeviceDescriptor.productDescription);
+//                System.out.format("\nBus %03d, Device %03d: Vendor %04x, Product %04x%n", busNumber, address, descriptor.idVendor(), descriptor.idProduct());
+                UsbDeviceInfo usbDeviceInfo = findUSBDevice(descriptor.idVendor(), descriptor.idProduct(), descriptor, device);
+                if (usbDeviceInfo != null) {
+                    attachedDevicesInfo.add(usbDeviceInfo);
+//                    System.out.println("Vendor = " + usbDeviceInfo.vendorDescription + ", Product = " + usbDeviceInfo.productDescription);
                 }
             }
         } finally {
@@ -91,15 +184,18 @@ public class USBManager {
 
         // Deinitialize the libusb context
         LibUsb.exit(context);
+        return attachedDevicesInfo;
     }
 
-    private UsbDeviceDescriptor findUSBDevice(short vendorId, short productId) {
+    private UsbDeviceInfo findUSBDevice(short vendorId, short productId, DeviceDescriptor descriptor, Device device) {
         boolean found = false;
         int i = 0;
-        UsbDeviceDescriptor usbDeviceDescriptor = null;
-        while (!found && (i < usbDeviceDescriptorList.size())) {
-            if ((vendorId == usbDeviceDescriptorList.get(i).vendorId) && (productId == usbDeviceDescriptorList.get(i).productId)) {
-                usbDeviceDescriptor = usbDeviceDescriptorList.get(i);
+        UsbDeviceInfo usbDeviceInfo = null;
+        while (!found && (i < usbDeviceInfoList.size())) {
+            if ((vendorId == usbDeviceInfoList.get(i).vendorId) && (productId == usbDeviceInfoList.get(i).productId)) {
+                usbDeviceInfo = usbDeviceInfoList.get(i);
+                usbDeviceInfo.descriptor = descriptor;
+                usbDeviceInfo.device = device;
                 found = true;
             }
             i++;
@@ -107,15 +203,42 @@ public class USBManager {
 
         // If no perfect match, try again to at least get the vendor.
         i = 0;
-        while (!found && (i < usbDeviceDescriptorList.size())) {
-            if ((vendorId == usbDeviceDescriptorList.get(i).vendorId)) {
-                usbDeviceDescriptor = new UsbDeviceDescriptor(usbDeviceDescriptorList.get(i).vendorId, usbDeviceDescriptorList.get(i).productId, usbDeviceDescriptorList.get(i).vendorDescription, "");
+        while (!found && (i < usbDeviceInfoList.size())) {
+            if ((vendorId == usbDeviceInfoList.get(i).vendorId)) {
+                usbDeviceInfo = new UsbDeviceInfo(usbDeviceInfoList.get(i).vendorId, usbDeviceInfoList.get(i).productId, usbDeviceInfoList.get(i).vendorDescription, "");
+                usbDeviceInfo.descriptor = descriptor;
+                usbDeviceInfo.device = device;
                 found = true;
             }
             i++;
         }
 
-        return usbDeviceDescriptor;
+        return usbDeviceInfo;
+    }
+
+    private Device findDevice(short vendorId, short productId) {
+        boolean found = false;
+        int i = 0;
+        UsbDeviceInfo usbDeviceInfo = null;
+        while (!found && (i < usbDeviceInfoList.size())) {
+            if ((vendorId == usbDeviceInfoList.get(i).vendorId) && (productId == usbDeviceInfoList.get(i).productId)) {
+                usbDeviceInfo = usbDeviceInfoList.get(i);
+                found = true;
+            }
+            i++;
+        }
+
+        // If no perfect match, try again to at least get the vendor.
+        i = 0;
+        while (!found && (i < usbDeviceInfoList.size())) {
+            if ((vendorId == usbDeviceInfoList.get(i).vendorId)) {
+                usbDeviceInfo = new UsbDeviceInfo(usbDeviceInfoList.get(i).vendorId, usbDeviceInfoList.get(i).productId, usbDeviceInfoList.get(i).vendorDescription, "");
+                found = true;
+            }
+            i++;
+        }
+
+        return usbDeviceInfo.device;
     }
 
     private void loadUsbDatabase() throws Exception {
@@ -139,14 +262,14 @@ public class USBManager {
                     String[] smallerLines = line.split("  ");
                     vendorId = hexStringToShort(smallerLines[0]);
                     vendorDescription = smallerLines[1];
-                    UsbDeviceDescriptor usbDeviceDescriptor = new UsbDeviceDescriptor(vendorId, (short) -1, vendorDescription, "");
-                    usbDeviceDescriptorList.add(usbDeviceDescriptor);
+                    UsbDeviceInfo usbDeviceInfo = new UsbDeviceInfo(vendorId, (short) -1, vendorDescription, "");
+                    usbDeviceInfoList.add(usbDeviceInfo);
                 } else {
                     String[] smallerLines = line.substring(1).split("  ");
                     productId = hexStringToShort(smallerLines[0]);
                     productDescription = smallerLines[1];
-                    UsbDeviceDescriptor usbDeviceDescriptor = new UsbDeviceDescriptor(vendorId, productId, vendorDescription, productDescription);
-                    usbDeviceDescriptorList.add(usbDeviceDescriptor);
+                    UsbDeviceInfo usbDeviceInfo = new UsbDeviceInfo(vendorId, productId, vendorDescription, productDescription);
+                    usbDeviceInfoList.add(usbDeviceInfo);
                 }
             }
         }
