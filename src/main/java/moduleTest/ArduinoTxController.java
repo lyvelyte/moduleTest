@@ -25,6 +25,9 @@ public class ArduinoTxController {
     private boolean isShuttingDown = false;
     private static final Random random = new Random();
 
+    private static final int nFrames = 2000;
+    private static boolean swtichFlip = false;
+
     // Data Format
     // data[0] = startMarker
     // data[1] = Backdrop Brightness
@@ -64,16 +67,100 @@ public class ArduinoTxController {
     // data[35] = chksum3
     // data[36] = endMarker
 
+    private byte getColor(){
+        double z = (frameNumber)/(4d*nFrames);
+        double x = Math.sin(2d*Math.PI*z);
+        double xAmp = (0.5d*x+0.5d)*128d;
+        int a = (int) xAmp;
+        byte b = (byte) a;
+//        LOGGER.info("z = [{}], x = [{}], xAmp = [{}], a = [{}], b = [{}]", z, x, xAmp, a, b);
+        return b;
+    }
+
+    private byte[] getBadData(){
+        byte[] data = new byte[DATA_SIZE-5];
+        data[0] = (byte) startMarker;
+        data[1] = 0;
+        data[2] = 64;
+        if(frameNumber%3 == 0){
+            data[3] = getColor();
+        }else if(frameNumber%2 ==0){
+            data[4] = getColor();
+        }else{
+            data[5] = getColor();
+        }
+        data[data.length - 1] = (byte) endMarker;
+        return data;
+    }
+
+    private byte[] getData() {
+        byte[] data = new byte[DATA_SIZE];
+        data[0] = (byte) startMarker;
+        data[1] = 0;
+        data[2] = 64;
+        if(frameNumber % 30 == 0){
+            if(swtichFlip){
+                swtichFlip = false;
+            }else{
+                swtichFlip = true;
+            }
+        }
+        if(swtichFlip){
+            data[3] = (byte) 128;
+            data[4] = (byte) 128;
+            data[5] = (byte) 128;
+        }else{
+            data[3] = 0;
+            data[4] = 0;
+            data[5] = 0;
+        }
+        data[6] = 1;
+        data[7] = 0;
+        data[8] = 0;
+        data[9] = 0;
+        data[10] = 0;
+        data[11] = 0;
+        data[12] = 0;
+        data[13] = 0;
+        data[14] = 0;
+        data[15] = 0;
+        data[16] = 0;
+        data[17] = 0;
+        data[18] = 0;
+        data[19] = 0;
+        data[20] = 0;
+        data[21] = 0;
+        data[22] = 0;
+        data[23] = 0;
+        data[24] = 0;
+        data[25] = 0;
+        data[26] = 0;
+        data[27] = 0;
+        data[28] = 0;
+        data[29] = 0;
+        data[30] = 0;
+        data[31] = 0;
+        data[32] = 0;
+        data[33] = 0;
+        data[34] = 0;
+        if(!swtichFlip){
+            data[35] = 0;
+        }else{
+            refreshChecksum(data);
+            data[36] = (byte) endMarker;
+        }
+        return data;
+    }
+
     public ArduinoTxController() {
         // Connect to the com port.
-        connect("COM3");
+        connect("COM6");
 
         // If connected, start the scheduler to update the lights.
         if (isConnected()) {
             Runtime.getRuntime().addShutdownHook(new Thread(this::cleanUp));
             ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
             scheduler.scheduleAtFixedRate(() -> {
-
                     try {
                         updateLights();
                     } catch (Exception e) {
@@ -81,7 +168,6 @@ public class ArduinoTxController {
                         System.exit(-1);
                     }
             }, 0, 16670000L, TimeUnit.NANOSECONDS);
-            LOGGER.info("Light scheduler closed.");
         }
     }
 
@@ -106,7 +192,20 @@ public class ArduinoTxController {
 
     private void updateLights() {
         if (isConnected && !isShuttingDown) {
-            sendDataToTx(getData());
+            if(frameNumber > nFrames){
+                cleanUp();
+            }else{
+//                if(frameNumber > 30 && frameNumber < 40){
+//                    sendDataToTx(getBadData());
+//                }else{
+                    sendDataToTx(getData());
+//                }
+//                try{
+//                    Thread.sleep(50);
+//                }catch(Exception ignored){
+
+//                }
+            }
         }
     }
 
@@ -115,7 +214,7 @@ public class ArduinoTxController {
             try {
                 updateFrameNumber(data);
                 refreshChecksum(data);
-                LOGGER.info("Sending data! =)");
+//                LOGGER.info("Sending data! =)");
 
                 if (!serialPort.writeBytes(data)) {
                     LOGGER.info("Failed to write to Tx lights.");
@@ -177,7 +276,7 @@ public class ArduinoTxController {
         if (isConnected && !isShuttingDown) {
             isShuttingDown = true;
             try {
-                for (int a = 0; a < 10; a++) {
+                for (int a = 0; a < 3; a++) {
                     resetLights();
                     try {
                         Thread.sleep(25);
@@ -192,12 +291,6 @@ public class ArduinoTxController {
         }
         isConnected = false;
         LOGGER.info("Tx cleanup complete.");
-    }
-
-    private byte[] getData() {
-        byte[] data = new byte[DATA_SIZE];
-        data[0] = (byte) startMarker;
-        data[data.length - 1] = (byte) endMarker;
-        return data;
+        System.exit(-1);
     }
 }
