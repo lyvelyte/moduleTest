@@ -3,22 +3,78 @@
  */
 package moduleTest;
 
-public class App {
-    public String getGreeting() {
-        return "Hello world.";
-    }
+import ch.bildspur.artnet.ArtNetBuffer;
+import ch.bildspur.artnet.ArtNetClient;
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
-        MP3_System mp3AudioSys = new MP3_System();
-        mp3AudioSys.init();
-        while(mp3AudioSys.isRunning){
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Scanner;
+
+public class App {
+
+    public static void main(String[] args) throws SocketException {
+        System.out.println("Sending DMX data...");
+
+        byte[] dmxData = new byte[512];
+
+
+        Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
+        ArrayList<NetworkInterface> netInterfaceList = new ArrayList<NetworkInterface>();
+        int nInterfaces = 0;
+        while (netInterfaces.hasMoreElements()) {
+            netInterfaceList.add(netInterfaces.nextElement());
+            System.out.println("(" + nInterfaces + ") = " + netInterfaceList.get(nInterfaces).getDisplayName());
+            nInterfaces++;
+        }
+
+        Scanner interfaceScanner = new Scanner(System.in);
+        System.out.println("Select Network Interface: ");
+//        String userInput = interfaceScanner.nextLine();
+//        int choice = Integer.valueOf(userInput);
+        int choice = 17;
+        System.out.println("Selected " + netInterfaceList.get(choice).getDisplayName());
+
+        NetworkInterface ni = netInterfaceList.get(choice);
+        InetAddress address = ni.getInetAddresses().nextElement();
+
+        ArtNetClient artnet = new ArtNetClient(new ArtNetBuffer(), 6454, 6454);
+        artnet.start(address);
+
+        // send data to localhost
+        int N = 64;
+        for(int i = 0; i < N; i++){
+            int val_int = (int) (255d*Math.abs(Math.sin(2d*Math.PI*((double) 4*i)/((double) N))));
+            if(val_int < 0){val_int = 0;}
+            if(val_int > 255){val_int = 255;}
+            byte val = (byte) val_int;
+
+            System.out.println("val_int = " + val_int + ", val = " + val);
+            dmxData[0] = val;
+            dmxData[1] = val;
+            dmxData[2] = val;
+            dmxData[3] = val;
+
+            artnet.broadcastDmx(0, 4, dmxData);
+
             try{
-                Thread.sleep(200);
-            }catch(Exception e){
-                System.err.println("Error, failed to sleep!");
+                Thread.sleep(30);
+            }catch(Exception ignored) {
+
             }
         }
-        mp3AudioSys.cleanUp();
+
+        dmxData[0] = 0;
+        dmxData[1] = 0;
+        dmxData[2] = 0;
+        dmxData[3] = 0;
+
+        artnet.broadcastDmx(0, 1, dmxData);
+
+        artnet.stop();
+
+        System.out.println("DMX data sent!");
     }
 }
