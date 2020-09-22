@@ -34,7 +34,7 @@ public class App {
         System.out.println("Select Network Interface: ");
 //        String userInput = interfaceScanner.nextLine();
 //        int choice = Integer.valueOf(userInput);
-        int choice = 17;
+        int choice = 6;
         System.out.println("Selected " + netInterfaceList.get(choice).getDisplayName());
 
         NetworkInterface ni = netInterfaceList.get(choice);
@@ -44,25 +44,33 @@ public class App {
         artnet.start(address);
 
         // send data to localhost
-        int N = 64;
-        for(int i = 0; i < N; i++){
-            int val_int = (int) (255d*Math.abs(Math.sin(2d*Math.PI*((double) 4*i)/((double) N))));
-            if(val_int < 0){val_int = 0;}
-            if(val_int > 255){val_int = 255;}
-            byte val = (byte) val_int;
+        boolean onFlag = false;
+        for(int i = 0; i < 4096; i++){
+            if(onFlag == false){
+                dmxData[0] = (byte) 255;
+                dmxData[1] = 0;
+                dmxData[2] = 0;
+                dmxData[3] = (byte) 255;
 
-            System.out.println("val_int = " + val_int + ", val = " + val);
-            dmxData[0] = val;
-            dmxData[1] = val;
-            dmxData[2] = val;
-            dmxData[3] = val;
+            }else{
+                dmxData[0] = 0;
+                dmxData[1] = 0;
+                dmxData[2] = 0;
+                dmxData[3] = 0;
+            }
 
-            artnet.broadcastDmx(0, 4, dmxData);
+            artnet.broadcastDmx(0, 1, dmxData);
 
             try{
-                Thread.sleep(30);
-            }catch(Exception ignored) {
+                Thread.sleep(100);
+            }catch(Exception ignored){
 
+            }
+
+            if(onFlag){
+                onFlag = false;
+            }else{
+                onFlag = true;
             }
         }
 
