@@ -62,7 +62,7 @@ public class App {
 
         for(int i = 0; i < timeToRun; i++){
             if(onFlag == false){
-                // ========= Universe 01 ===============
+//                 ========= Universe 01 ===============
                 // A - RGBW
                 for (int j = 0; j < 63; j++){
                     dmxData_univ_01[4*j+0] = (byte) r_for_purple;
@@ -71,16 +71,17 @@ public class App {
                     dmxData_univ_01[4*j+3] = (byte) 0;
                 }
 
-//                // - Center Loop
-//                offset = 63*4;
-//                for (int j = 0; j < 1; j++){
-//                    dmxData_univ_01[offset+3*j+0] = (byte) 255;
-//                    dmxData_univ_01[offset+3*j+1] = (byte) 0;
-//                    dmxData_univ_01[offset+3*j+2] = (byte) 0;
-//                }
+                // - Center Loop
+                offset = 63*4;
+                for (int j = 0; j < 58; j++){
+                    dmxData_univ_01[offset+4*j+0] = (byte) r_for_purple;
+                    dmxData_univ_01[offset+4*j+1] = (byte) 0;
+                    dmxData_univ_01[offset+4*j+2] = (byte) 255;
+                    dmxData_univ_01[offset+4*j+3] = (byte) 0;
+                }
 
                 // Top A - RGB
-                offset = 63*4;
+                offset = 121*4;
                 for (int j = 0; j < 1; j++){
                     dmxData_univ_01[offset+3*j+0] = (byte) r_for_purple;
                     dmxData_univ_01[offset+3*j+1] = (byte) 0;
@@ -88,7 +89,7 @@ public class App {
                 }
 
                 // Side A - RGB
-                offset = 64*4;
+                offset = 121*4+1*3;
                 for (int j = 0; j < 1; j++){
                     dmxData_univ_01[offset+3*j+0] = (byte) r_for_purple;
                     dmxData_univ_01[offset+3*j+1] = (byte) 0;
@@ -96,70 +97,15 @@ public class App {
                 }
 
                 // Back A - RGB
-                offset = 65*4;
+                offset = 121*4+2*3;
                 for (int j = 0; j < 1; j++){
                     dmxData_univ_01[offset+3*j+0] = (byte) 255;
                     dmxData_univ_01[offset+3*j+1] = (byte) 0;
                     dmxData_univ_01[offset+3*j+2] = (byte) 0;
                 }
 
-                // ========= Universe 02 ===============
-                // Left A Loop - RGBW
-                for (int j = 0; j < 35; j++){
-                    dmxData_univ_02[4*j+0] = (byte) r_for_purple;
-                    dmxData_univ_02[4*j+1] = (byte) 0;
-                    dmxData_univ_02[4*j+2] = (byte) 255;
-                    dmxData_univ_02[4*j+3] = (byte) 0;
-                }
-
-                // Right A Loop - RGBW
-                offset = 35*4;
-                for (int j = 0; j < 35; j++){
-                    dmxData_univ_02[offset+4*j+0] = (byte) r_for_purple;
-                    dmxData_univ_02[offset+4*j+1] = (byte) 0;
-                    dmxData_univ_02[offset+4*j+2] = (byte) 255;
-                    dmxData_univ_02[offset+4*j+3] = (byte) 0;
-                }
-
-                // Left Eye - RGBW
-                offset = 70*4;
-                for (int j = 0; j < 35; j++){
-                    dmxData_univ_02[offset+4*j+0] = (byte) r_for_purple;
-                    dmxData_univ_02[offset+4*j+1] = (byte) 0;
-                    dmxData_univ_02[offset+4*j+2] = (byte) 255;
-                    dmxData_univ_02[offset+4*j+3] = (byte) 0;
-                }
-
-                // ========= Universe 03 ===============
-                // Right Panel Top - RGBW
-                for (int j = 0; j < 72; j++){
-                    dmxData_univ_03[4*j+0] = (byte) r_for_purple;
-                    dmxData_univ_03[4*j+1] = (byte) 0;
-                    dmxData_univ_03[4*j+2] = (byte) 255;
-                    dmxData_univ_03[4*j+3] = (byte) 0;
-                }
-
-                // Right A Loop - RGBW
-                offset = 72*4;
-                for (int j = 0; j < 50; j++){
-                    dmxData_univ_03[offset+4*j+0] = (byte) r_for_purple;
-                    dmxData_univ_03[offset+4*j+1] = (byte) 0;
-                    dmxData_univ_03[offset+4*j+2] = (byte) 255;
-                    dmxData_univ_03[offset+4*j+3] = (byte) 0;
-                }
-
-                // ========= Universe 04 ===============
-                // Right Panel Loop - RGBW
-                for (int j = 0; j < 98; j++){
-                    dmxData_univ_04[4*j+0] = (byte) r_for_purple;
-                    dmxData_univ_04[4*j+1] = (byte) 0;
-                    dmxData_univ_04[4*j+2] = (byte) 255;
-                    dmxData_univ_04[4*j+3] = (byte) 0;
-                }
-
                 // ========= Universe 05 ===============
-                // Left Panel Loop - RGBW
-                for (int j = 0; j < 98; j++){
+                for (int j = 0; j < 128; j++){
                     dmxData_univ_05[4*j+0] = (byte) r_for_purple;
                     dmxData_univ_05[4*j+1] = (byte) 0;
                     dmxData_univ_05[4*j+2] = (byte) 255;
@@ -167,23 +113,140 @@ public class App {
                 }
 
                 // ========= Universe 06 ===============
-                // Left Panel Top - RGBW
-                for (int j = 0; j < 72; j++){
-                    dmxData_univ_06[4*j+0] = (byte) r_for_purple;
-                    dmxData_univ_06[4*j+1] = (byte) 0;
-                    dmxData_univ_06[4*j+2] = (byte) 255;
-                    dmxData_univ_06[4*j+3] = (byte) 0;
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_06[j] = (byte) 255;
                 }
 
-                // ========= Universe 07 ===============
-                // Light-O-Rama Controllers
-                for (int j = 0; j < 512; j++){
-                    dmxData_univ_07[j] = (byte) 255;
+//                 ========= Universe 07 ===============
+                for (int j = 0; j < 128; j++){
+                    dmxData_univ_07[4*j+0] = (byte) r_for_purple;
+                    dmxData_univ_07[4*j+1] = (byte) 0;
+                    dmxData_univ_07[4*j+2] = (byte) 255;
+                    dmxData_univ_07[4*j+3] = (byte) 0;
                 }
-            }else{
+
+//                      ========= Universe 07 ===============
+                for (int j = 0; j < 128; j++){
+                    dmxData_univ_02[4*j+0] = (byte) r_for_purple;
+                    dmxData_univ_02[4*j+1] = (byte) 0;
+                    dmxData_univ_02[4*j+2] = (byte) 255;
+                    dmxData_univ_02[4*j+3] = (byte) 0;
+                }
+
 //                for (int j = 0; j < 512; j++){
-//                    dmxData_univ_01[j] = (byte) 255;
+//                    dmxData_univ_07[j] = (byte) 255;
 //                }
+
+
+//                // ========= Universe 02 ===============
+//                // Left A Loop - RGBW
+//                for (int j = 0; j < 35; j++){
+//                    dmxData_univ_02[4*j+0] = (byte) r_for_purple;
+//                    dmxData_univ_02[4*j+1] = (byte) 0;
+//                    dmxData_univ_02[4*j+2] = (byte) 255;
+//                    dmxData_univ_02[4*j+3] = (byte) 0;
+//                }
+//
+//                // Right A Loop - RGBW
+//                offset = 35*4;
+//                for (int j = 0; j < 35; j++){
+//                    dmxData_univ_02[offset+4*j+0] = (byte) r_for_purple;
+//                    dmxData_univ_02[offset+4*j+1] = (byte) 0;
+//                    dmxData_univ_02[offset+4*j+2] = (byte) 255;
+//                    dmxData_univ_02[offset+4*j+3] = (byte) 0;
+//                }
+//
+//                // Left Eye - RGBW
+//                offset = 70*4;
+//                for (int j = 0; j < 35; j++){
+//                    dmxData_univ_02[offset+4*j+0] = (byte) r_for_purple;
+//                    dmxData_univ_02[offset+4*j+1] = (byte) 0;
+//                    dmxData_univ_02[offset+4*j+2] = (byte) 255;
+//                    dmxData_univ_02[offset+4*j+3] = (byte) 0;
+//                }
+
+//                // ========= Universe 03 ===============
+//                // Right Panel Top - RGBW
+//                for (int j = 0; j < 72; j++){
+//                    dmxData_univ_03[4*j+0] = (byte) r_for_purple;
+//                    dmxData_univ_03[4*j+1] = (byte) 0;
+//                    dmxData_univ_03[4*j+2] = (byte) 255;
+//                    dmxData_univ_03[4*j+3] = (byte) 0;
+//                }
+//
+//                // Right A Loop - RGBW
+//                offset = 72*4;
+//                for (int j = 0; j < 50; j++){
+//                    dmxData_univ_03[offset+4*j+0] = (byte) r_for_purple;
+//                    dmxData_univ_03[offset+4*j+1] = (byte) 0;
+//                    dmxData_univ_03[offset+4*j+2] = (byte) 255;
+//                    dmxData_univ_03[offset+4*j+3] = (byte) 0;
+//                }
+
+//                // ========= Universe 04 ===============
+//                // Right Panel Loop - RGBW
+//                for (int j = 0; j < 98; j++){
+//                    dmxData_univ_04[4*j+0] = (byte) r_for_purple;
+//                    dmxData_univ_04[4*j+1] = (byte) 0;
+//                    dmxData_univ_04[4*j+2] = (byte) 255;
+//                    dmxData_univ_04[4*j+3] = (byte) 0;
+//                }
+
+//                // ========= Universe 05 ===============
+//                // Left Panel Loop - RGBW
+//                for (int j = 0; j < 98; j++){
+//                    dmxData_univ_05[4*j+0] = (byte) r_for_purple;
+//                    dmxData_univ_05[4*j+1] = (byte) 0;
+//                    dmxData_univ_05[4*j+2] = (byte) 255;
+//                    dmxData_univ_05[4*j+3] = (byte) 0;
+//                }
+
+//                // ========= Universe 06 ===============
+//                // Left Panel Top - RGBW
+//                for (int j = 0; j < 72; j++){
+//                    dmxData_univ_06[4*j+0] = (byte) r_for_purple;
+//                    dmxData_univ_06[4*j+1] = (byte) 0;
+//                    dmxData_univ_06[4*j+2] = (byte) 255;
+//                    dmxData_univ_06[4*j+3] = (byte) 0;
+//                }
+
+//                // ========= Universe 07 ===============
+//                // Light-O-Rama Controllers
+//                for (int j = 0; j < 512; j++){
+//                    dmxData_univ_07[j] = (byte) 255;
+//                }
+            }else{
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_01[j] = (byte) 0;
+                }
+
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_02[j] = (byte) 0;
+                }
+
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_03[j] = (byte) 0;
+                }
+
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_04[j] = (byte) 0;
+                }
+
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_05[j] = (byte) 0;
+                }
+
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_06[j] = (byte) 0;
+                }
+
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_07[j] = (byte) 0;
+                }
+
+                for (int j = 0; j < 512; j++){
+                    dmxData_univ_08[j] = (byte) 0;
+                }
             }
 
             if(onFlag){
