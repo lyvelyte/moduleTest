@@ -35,6 +35,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     compile group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5-1'
+    compile 'ch.bildspur:artnet4j:0.6.2'
 }
 
 application {
