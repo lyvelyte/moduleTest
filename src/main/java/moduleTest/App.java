@@ -19,7 +19,18 @@ public class App {
 
 
     public static int getEdisonAddress(int row, int col){
+        if(row < 0 || col < 0){
+            return 511;
+        }
+
+        int n_rows = 4;
+        int n_cols = 512;
         int[][] edisonAddresses  = new int[4][512];
+        for(int i = 0; i < n_rows; i++){
+            for(int j = 0; j < n_cols; j++){
+                edisonAddresses[i][j] = 511;
+            }
+        }
 
         int row0_col = 0;
         int row1_col = 0;
@@ -32,197 +43,204 @@ public class App {
         lights_in_this_section = 9;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[0][row0_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 8;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 8;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[2][row2_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 7;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[3][row3_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         // Front Light section 1
         lights_in_this_section = 6;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[0][row0_col++] = address;
-            address++;
+            edisonAddresses[0][row0_col++] = address+i;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[2][row2_col++] = address;
-            address++;
+            edisonAddresses[2][row2_col++] = address+i;
         }
+        address = address + lights_in_this_section;
 
         // Front light section 2
         lights_in_this_section = 6;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[0][row0_col++] = address;
-            address++;
+            edisonAddresses[0][row0_col++] = address + i;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[2][row2_col++] = address;
-            address++;
+            edisonAddresses[2][row2_col++] = address + i;
         }
+        address = address + lights_in_this_section;
 
         // Front light section 3
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[0][row0_col++] = address;
-            address++;
+            edisonAddresses[0][row0_col++] = address + i;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 6;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[2][row2_col++] = address;
-            address++;
+            edisonAddresses[2][row2_col++] = address + i;
         }
+        address = address + lights_in_this_section;
 
         // Front light section 4
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[0][row0_col++] = address;
-            address++;
+            edisonAddresses[0][row0_col++] = address + i;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 6;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[2][row2_col++] = address;
-            address++;
+            edisonAddresses[2][row2_col++] = address + i;
         }
+        address = address + lights_in_this_section;
 
         // Front light section 5
-        lights_in_this_section = 3;
+        lights_in_this_section = 4;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[0][row0_col++] = address;
-            address++;
+            edisonAddresses[0][row0_col++] = address + i;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 4;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 4;
         for(int i = 0; i < lights_in_this_section; i++){
-            edisonAddresses[2][row2_col++] = address;
-            address++;
+            edisonAddresses[2][row2_col++] = address + i;
         }
+        address = address + lights_in_this_section;
 
         // Front light section 6
-        lights_in_this_section = 16+9;
+        lights_in_this_section = 16+9+4;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[0][row0_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 7+16+2;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 14+11;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[2][row2_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
+
+//        return address+5;
+
+        address = address + 5;
 
         // Front light section 7
+        row0_col = row0_col - 4;
         lights_in_this_section = 4;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[0][row0_col++] = address+lights_in_this_section-1-i;
-            address++;
+//            edisonAddresses[0][row0_col++] = address+i;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 4;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 4;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[2][row2_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         // Front light section 8
+        address = address + 4;
         lights_in_this_section = 6;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[0][row0_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 5;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[2][row2_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         // Front light section 9
         lights_in_this_section = 4;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[0][row0_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 6;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[1][row1_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         lights_in_this_section = 6;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[2][row2_col++] = address+lights_in_this_section-1-i;
-            address++;
         }
+        address = address + lights_in_this_section;
 
         // Right front section that was addressed weird...
         int offset0 = 11;
@@ -232,13 +250,14 @@ public class App {
         edisonAddresses[0][row0_col+offset0-3] = 260;
         edisonAddresses[0][row0_col+offset0-4] = 261;
         edisonAddresses[0][row0_col+offset0-5] = 263;
-        edisonAddresses[0][row0_col+offset0-6] = 245;
+        edisonAddresses[0][row0_col+offset0-6] = 240;
         edisonAddresses[0][row0_col+offset0-7] = 244;
         edisonAddresses[0][row0_col+offset0-8] = 242;
         edisonAddresses[0][row0_col+offset0-9] = 243;
         edisonAddresses[0][row0_col+offset0-10] = 241;
+        edisonAddresses[0][row0_col+offset0-11] = 245;
 
-        int offset1 = 10;
+        int offset1 = 9;
         edisonAddresses[1][row1_col+offset1-0] = 262;
         edisonAddresses[1][row1_col+offset1-1] = 259;
         edisonAddresses[1][row1_col+offset1-2] = 264;
@@ -250,7 +269,7 @@ public class App {
         edisonAddresses[1][row1_col+offset1-8] = 255;
         edisonAddresses[1][row1_col+offset1-9] = 252;
 
-        int offset2 = 10;
+        int offset2 = 9;
         edisonAddresses[2][row2_col+offset2-0] = 267;
         edisonAddresses[2][row2_col+offset2-1] = 269;
         edisonAddresses[2][row2_col+offset2-2] = 271;
@@ -282,7 +301,7 @@ public class App {
         edisonAddresses[1][row1_col+offset1+7] = 294;
         edisonAddresses[1][row1_col+offset1+8] = 295;
 
-        edisonAddresses[2][row2_col+offset2+1] = 512;   // ????
+        edisonAddresses[2][row2_col+offset2+1] = 272;   // ????
         edisonAddresses[2][row2_col+offset2+2] = 281;
         edisonAddresses[2][row2_col+offset2+3] = 282;
         edisonAddresses[2][row2_col+offset2+4] = 283;
@@ -299,25 +318,76 @@ public class App {
         edisonAddresses[3][row3_col+6] = 277;
         edisonAddresses[3][row3_col+7] = 278;
 
+//        return 190;
         return edisonAddresses[row][col];
     }
 
+    public static byte[] centerOutHelper(byte[] dmx_univ, int clk_cnt){
+        int c_row_0 = 47;
+        int c_row_1 = 45;
+        int c_row_2 = 45;
+
+//        // Clear universe
+//        for (int j = 0; j < 512; j++){
+//            dmx_univ[j] = (byte) 0;
+//        }
+
+        // Determine lights to turn on
+        if(clk_cnt < 38){
+            dmx_univ[getEdisonAddress(0, c_row_0+clk_cnt)] = (byte) 255;
+            dmx_univ[getEdisonAddress(0, c_row_0-clk_cnt)] = (byte) 255;
+            dmx_univ[getEdisonAddress(1, c_row_1+clk_cnt)] = (byte) 255;
+            dmx_univ[getEdisonAddress(1, c_row_1-clk_cnt)] = (byte) 255;
+            dmx_univ[getEdisonAddress(2, c_row_2+clk_cnt)] = (byte) 255;
+            dmx_univ[getEdisonAddress(2, c_row_2-clk_cnt)] = (byte) 255;
+        }else if(clk_cnt == 38 || clk_cnt == 39){
+            dmx_univ[getEdisonAddress(0, c_row_0+clk_cnt)] = (byte) 255;
+            dmx_univ[getEdisonAddress(0, c_row_0-clk_cnt)] = (byte) 255;
+        }else if(clk_cnt < 48){
+            dmx_univ[getEdisonAddress(0, c_row_0+clk_cnt+2-2)] = (byte) 255;
+            dmx_univ[getEdisonAddress(0, c_row_0-clk_cnt-2+2)] = (byte) 255;
+            dmx_univ[getEdisonAddress(1, c_row_1+clk_cnt-2)] = (byte) 255;
+            dmx_univ[getEdisonAddress(1, c_row_1-clk_cnt+2)] = (byte) 255;
+            dmx_univ[getEdisonAddress(2, c_row_2+clk_cnt-2)] = (byte) 255;
+            dmx_univ[getEdisonAddress(2, c_row_2-clk_cnt+2)] = (byte) 255;
+
+            int thirdRowOffset = clk_cnt - 40;
+            dmx_univ[getEdisonAddress(3, 4-thirdRowOffset+2)] = (byte) 255;
+            dmx_univ[getEdisonAddress(3, thirdRowOffset+10-2)] = (byte) 255;
+        } else if(clk_cnt == 48 || clk_cnt == 49 || clk_cnt == 50 || clk_cnt == 54 | clk_cnt == 55 || clk_cnt == 56 || clk_cnt == 60 || clk_cnt == 61 || clk_cnt == 62){
+            for (int j = 0; j < 512; j++){
+                if(j != 190 && j != 191) {
+                    dmx_univ[j] = (byte) 255;
+                }
+            }
+        } else if(clk_cnt == 51 || clk_cnt == 52 || clk_cnt == 53 || clk_cnt == 57 || clk_cnt == 58 || clk_cnt == 59){
+            for (int j = 0; j < 512; j++){
+                dmx_univ[j] = (byte) 0;
+            }
+        }
+
+        return dmx_univ;
+    }
+
     public static void main(String[] args) throws SocketException {
-        System.out.println("Sending DMX data...");
+//        System.out.println("Sending DMX data...");
 
         byte[] dmxData_univ_01 = new byte[512];
+        byte[] dmxData_univ_02 = new byte[512];
+        byte[] dmxData_univ_03 = new byte[512];
+        byte[] dmxData_univ_04 = new byte[512];
 
         Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
         ArrayList<NetworkInterface> netInterfaceList = new ArrayList<NetworkInterface>();
         int nInterfaces = 0;
         while (netInterfaces.hasMoreElements()) {
             netInterfaceList.add(netInterfaces.nextElement());
-            System.out.println("(" + nInterfaces + ") = " + netInterfaceList.get(nInterfaces).getDisplayName());
+//            System.out.println("(" + nInterfaces + ") = " + netInterfaceList.get(nInterfaces).getDisplayName());
             nInterfaces++;
         }
 
         int choice = 5;
-        System.out.println("Selected " + netInterfaceList.get(choice).getDisplayName());
+//        System.out.println("Selected " + netInterfaceList.get(choice).getDisplayName());
 
         NetworkInterface ni = netInterfaceList.get(choice);
         InetAddress address = ni.getInetAddresses().nextElement();
@@ -328,18 +398,20 @@ public class App {
         // send data to localhost
         boolean onFlag = false;
         long startTime = System.nanoTime();
-        long waitTime = 1000000000l;
-        int col = 0;
+//        long waitTime = 1000000000l;
+        long waitTime = 50000000l;
+//        int col = 9+24+25+3+8+2+4+4+3;
+//        int col = 45;
+        int cnt = 0;
+//        int cnt = 37;
 
         while(true){
+
             if(onFlag == false){
-                dmxData_univ_01[getEdisonAddress(0, col)] = (byte) 255;
-                dmxData_univ_01[getEdisonAddress(1, col)] = (byte) 255;
-                dmxData_univ_01[getEdisonAddress(2, col)] = (byte) 255;
-                dmxData_univ_01[getEdisonAddress(3, col)] = (byte) 255;
+                  dmxData_univ_01 = centerOutHelper(dmxData_univ_01, cnt);
             }else{
                 for (int j = 0; j < 512; j++){
-                    dmxData_univ_01[j] = (byte) 0;
+//                    dmxData_univ_01[j] = (byte) 0;
                 }
             }
 
@@ -347,16 +419,26 @@ public class App {
                 startTime = System.nanoTime();
                 if(onFlag){
                     onFlag = false;
-                    System.out.println("Turning lights off. Col = " + col);
-                    col = col + 1;
+//                    System.out.println("Turning lights off.");
+                    cnt = cnt + 1;
+
+                    if(cnt > 62){
+                        cnt = 0;
+                        for (int j = 0; j < 512; j++){
+                            dmxData_univ_01[j] = (byte) 0;
+                        }
+                    }
                 }else{
                     onFlag = true;
-                    System.out.println("Turning lights on.");
+//                    System.out.println("Turning lights on.");
                 }
             }
 
-            String artnet_ip_addr = "192.168.1.2";
+            String artnet_ip_addr = "192.168.1.3";
             artnet.unicastDmx(artnet_ip_addr, 0, 0, dmxData_univ_01);
+            artnet.unicastDmx(artnet_ip_addr, 0, 1, dmxData_univ_02);
+            artnet.unicastDmx(artnet_ip_addr, 0, 2, dmxData_univ_03);
+            artnet.unicastDmx(artnet_ip_addr, 0, 3, dmxData_univ_04);
         }
     }
 }
