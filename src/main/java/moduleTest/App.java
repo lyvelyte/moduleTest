@@ -9,11 +9,9 @@ import ch.bildspur.artnet.ArtNetClient;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Enumeration;
-import java.util.Scanner;
+import java.lang.Math;
 
 public class App {
 
@@ -180,8 +178,6 @@ public class App {
         }
         address = address + lights_in_this_section;
 
-//        return address+5;
-
         address = address + 5;
 
         // Front light section 7
@@ -189,7 +185,6 @@ public class App {
         lights_in_this_section = 4;
         for(int i = 0; i < lights_in_this_section; i++){
             edisonAddresses[0][row0_col++] = address+lights_in_this_section-1-i;
-//            edisonAddresses[0][row0_col++] = address+i;
         }
         address = address + lights_in_this_section;
 
@@ -303,7 +298,7 @@ public class App {
         edisonAddresses[1][row1_col+offset1+7] = 294;
         edisonAddresses[1][row1_col+offset1+8] = 295;
 
-        edisonAddresses[2][row2_col+offset2+1] = 272;   // ????
+        edisonAddresses[2][row2_col+offset2+1] = 272;
         edisonAddresses[2][row2_col+offset2+2] = 281;
         edisonAddresses[2][row2_col+offset2+3] = 282;
         edisonAddresses[2][row2_col+offset2+4] = 283;
@@ -320,20 +315,69 @@ public class App {
         edisonAddresses[3][row3_col+6] = 277;
         edisonAddresses[3][row3_col+7] = 278;
 
-//        return 190;
         return edisonAddresses;
     }
 
+    public static byte[] waveHelper(int[][] edison_addresses, byte[] dmx_univ, long clk_cnt){
+        double freq = 3;            // Number of waves
+        double time_speed = 1.0;    // Speed of time, relative to the clock.
+        boolean threshold_flag = false;
+        double threshold_value = 128;
 
-    public static byte[] centerOutHelper(int[][] edison_addresses, byte[] dmx_univ, int clk_cnt){
         int c_row_0 = 47;
         int c_row_1 = 45;
         int c_row_2 = 45;
 
-//        // Clear universe
-//        for (int j = 0; j < 512; j++){
-//            dmx_univ[j] = (byte) 0;
-//        }
+        for(int t = 0; t < 48; t++){
+            double t_eff = time_speed*((double) (t+clk_cnt))/48.0;
+            int value = (int) (Math.floor(255*(0.5*Math.sin(2.0*Math.PI*freq*time_speed*t_eff)+0.5)));
+            if(threshold_flag){
+                if(value > threshold_value){
+                    value = 255;
+                }else{
+                    value = 0;
+                }
+            }
+            if(t < 38){
+                dmx_univ[getEdisonAddress(edison_addresses, 0, c_row_0+t)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 0, c_row_0-t)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 1, c_row_1+t)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 1, c_row_1-t)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 2, c_row_2+t)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 2, c_row_2-t)] = (byte) value;
+            }else if(t == 38 || t == 39){
+                dmx_univ[getEdisonAddress(edison_addresses, 0, c_row_0+t)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 0, c_row_0-t)] = (byte) value;
+            }else if(t < 48){
+                dmx_univ[getEdisonAddress(edison_addresses, 0, c_row_0+t+2-2)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 0, c_row_0-t-2+2)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 1, c_row_1+t-2)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 1, c_row_1-t+2)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 2, c_row_2+t-2)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 2, c_row_2-t+2)] = (byte) value;
+
+                int thirdRowOffset = t - 40;
+                dmx_univ[getEdisonAddress(edison_addresses, 3, 4-thirdRowOffset+2)] = (byte) value;
+                dmx_univ[getEdisonAddress(edison_addresses, 3, thirdRowOffset+10-2)] = (byte) value;
+            }
+        }
+
+        return dmx_univ;
+    }
+
+
+    public static byte[] centerOutHelper(int[][] edison_addresses, byte[] dmx_univ, long clk_cntr){
+        boolean reverse_mode = false;
+
+        int c_row_0 = 47;
+        int c_row_1 = 45;
+        int c_row_2 = 45;
+
+        int clk_cnt = (int) clk_cntr;
+
+        if(reverse_mode){
+            clk_cnt = 62 - clk_cnt;
+        }
 
         // Determine which row/col to turn on.
         if(clk_cnt < 38){
@@ -380,22 +424,19 @@ public class App {
     public static void main(String[] args) throws SocketException {
 //        int network_choice = 5;
         int network_choice = 11;
+        boolean wave_mode = true;
         String artnet_ip_addr = "192.168.1.3";
 
         byte[] dmxData_univ_01 = new byte[512];
-        byte[] dmxData_univ_02 = new byte[512];
-        byte[] dmxData_univ_03 = new byte[512];
-        byte[] dmxData_univ_04 = new byte[512];
 
         Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
         ArrayList<NetworkInterface> netInterfaceList = new ArrayList<>();
-//        int nInterfaces = 0;
+        int nInterfaces = 0;
         while (netInterfaces.hasMoreElements()) {
             netInterfaceList.add(netInterfaces.nextElement());
-//            System.out.println("(" + nInterfaces + ") = " + netInterfaceList.get(nInterfaces).getDisplayName());
-//            nInterfaces++;
+            System.out.println("(" + nInterfaces + ") = " + netInterfaceList.get(nInterfaces).getDisplayName());
+            nInterfaces++;
         }
-//        System.out.println("Selected " + netInterfaceList.get(choice).getDisplayName());
 
         NetworkInterface ni = netInterfaceList.get(network_choice);
         InetAddress address = ni.getInetAddresses().nextElement();
@@ -405,17 +446,22 @@ public class App {
 
         long startTime = System.nanoTime();
         long waitTime = 50000000l;
-        int cnt = 0;
-
+        long cnt = 0;
         int [][] edison_addresses = getEdisonAddressTable();
 
         while(true){
-            dmxData_univ_01 = centerOutHelper(edison_addresses, dmxData_univ_01, cnt);
+            if(wave_mode){
+                dmxData_univ_01 = waveHelper(edison_addresses, dmxData_univ_01, cnt);
+            }else{
+                dmxData_univ_01 = centerOutHelper(edison_addresses, dmxData_univ_01, cnt);
+            }
             if(startTime + waitTime < System.nanoTime()){
                 startTime = System.nanoTime();
-                cnt = cnt + 1;
-                if(cnt > 61){
-                    cnt = 0;
+                cnt++;
+                if(!wave_mode){
+                    if(cnt > 61){
+                        cnt = 0;
+                    }
                 }
             }
             artnet.unicastDmx(artnet_ip_addr, 0, 0, dmxData_univ_01);
