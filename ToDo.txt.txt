@@ -1,0 +1,7 @@
+Edisons:
+1. Shimmer (double wave) 
+2. Scaling lower level offset
+3. Back to forward / forard to back 
+4. Skirt chase
+5. Block/wave from on end to the other
+6. Integrate into GUI

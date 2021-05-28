@@ -319,18 +319,28 @@ public class App {
     }
 
     public static byte[] waveHelper(int[][] edison_addresses, byte[] dmx_univ, long clk_cnt){
-        double freq = 3;            // Number of waves
-        double time_speed = 1.0;    // Speed of time, relative to the clock.
+        double freq = 5;            // Number of waves
+        double time_speed = 0.10;    // Speed of time, relative to the clock.
         boolean threshold_flag = false;
         double threshold_value = 128;
+        boolean reverse_flag = true;
+        boolean lower_offset_flag = false;
+        int lower_offset = 80;
+        if(reverse_flag){
+            clk_cnt = 48 - clk_cnt;
+        }
 
         int c_row_0 = 47;
         int c_row_1 = 45;
         int c_row_2 = 45;
 
         for(int t = 0; t < 48; t++){
-            double t_eff = time_speed*((double) (t+clk_cnt))/48.0;
-            int value = (int) (Math.floor(255*(0.5*Math.sin(2.0*Math.PI*freq*time_speed*t_eff)+0.5)));
+            double t_eff = (t+time_speed*((double) clk_cnt))/48.0;
+            int value = (int) (Math.floor(255*(0.5*Math.sin(2.0*Math.PI*freq*t_eff)+0.5)));
+            if(lower_offset_flag){
+                value = value + lower_offset;
+
+            }
             if(threshold_flag){
                 if(value > threshold_value){
                     value = 255;
@@ -422,8 +432,8 @@ public class App {
     }
 
     public static void main(String[] args) throws SocketException {
-//        int network_choice = 5;
-        int network_choice = 11;
+        int network_choice = 5;
+//        int network_choice = 11;
         boolean wave_mode = true;
         String artnet_ip_addr = "192.168.1.3";
 
@@ -445,7 +455,8 @@ public class App {
         artnet.start(address);
 
         long startTime = System.nanoTime();
-        long waitTime = 50000000l;
+//        long waitTime = 100000000l;
+        long waitTime = 22000000l;
         long cnt = 0;
         int [][] edison_addresses = getEdisonAddressTable();
 
@@ -459,8 +470,11 @@ public class App {
                 startTime = System.nanoTime();
                 cnt++;
                 if(!wave_mode){
-                    if(cnt > 61){
+                    if(cnt > 62){
                         cnt = 0;
+                        for (int j = 0; j < 512; j++){
+                            dmxData_univ_01[j] = (byte) 0;
+                        }
                     }
                 }
             }
